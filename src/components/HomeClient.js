@@ -96,7 +96,7 @@ export default function HomeClient() {
 
           <Link href="/new-entry">
             <button
-              className="mt-6 inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-semibold shadow-lg"
+              className="mt-6 cursor-pointer inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-semibold shadow-lg"
               style={{ backgroundColor: "var(--accent-primary)", color: "var(--text-inverse)" }}
             >
               <Plus className="w-6 h-6" /> New Entry
