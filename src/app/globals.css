@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+/* THEME 1: DEEP NAVY & WARM ACCENTS (Default) */
+:root,
+[data-theme="navy"] {
+  /* Backgrounds */
+  --bg-primary: #0F1C2E;
+  --bg-secondary: #1A2838;
+  --bg-elevated: #243447;
+  --bg-hover: #2A3F56;
+  --bg-active: #314B65;
+  
+  /* Text Colors */
+  --text-primary: #E8EAF6;
+  --text-secondary: #90A4AE;
+  --text-disabled: #607D8B;
+  --text-inverse: #0F1C2E;
+  
+  /* Accent Colors */
+  --accent-primary: #FFB74D;
+  --accent-primary-hover: #FFA726;
+  --accent-primary-active: #FF9800;
+  --accent-secondary: #64B5F6;
+  --accent-secondary-hover: #42A5F5;
+  
+  /* Semantic Colors */
+  --color-success: #4DB6AC;
+  --color-success-hover: #26A69A;
+  --color-warning: #FFB74D;
+  --color-warning-hover: #FFA726;
+  --color-error: #F48FB1;
+  --color-error-hover: #F06292;
+  --color-info: #64B5F6;
+  
+  /* Borders */
+  --border-subtle: rgba(144, 164, 174, 0.12);
+  --border-medium: rgba(144, 164, 174, 0.24);
+  --border-strong: rgba(144, 164, 174, 0.38);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  
+  /* Overlays */
+  --overlay-light: rgba(15, 28, 46, 0.6);
+  --overlay-medium: rgba(15, 28, 46, 0.8);
+  --overlay-heavy: rgba(15, 28, 46, 0.95);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(26, 40, 56, 0.7);
+  --glass-border: rgba(144, 164, 174, 0.18);
+  
+  /* Theme Name */
+  --theme-name: "Deep Navy";
+}
+
+/* THEME 2: CHARCOAL WITH VIOLET ACCENTS */
+[data-theme="charcoal"] {
+  /* Backgrounds */
+  --bg-primary: #121212;
+  --bg-secondary: #1E1E1E;
+  --bg-elevated: #2A2A2A;
+  --bg-hover: #353535;
+  --bg-active: #404040;
+  
+  /* Text Colors */
+  --text-primary: #F5F5F5;
+  --text-secondary: #9E9E9E;
+  --text-disabled: #6E6E6E;
+  --text-inverse: #121212;
+  
+  /* Accent Colors */
+  --accent-primary: #9C88FF;
+  --accent-primary-hover: #8A75F5;
+  --accent-primary-active: #7862EB;
+  --accent-secondary: #FF7B9C;
+  --accent-secondary-hover: #FF5E85;
+  
+  /* Semantic Colors */
+  --color-success: #69F0AE;
+  --color-success-hover: #4FE09A;
+  --color-warning: #FFD54F;
+  --color-warning-hover: #FFC93C;
+  --color-error: #FF7B9C;
+  --color-error-hover: #FF5E85;
+  --color-info: #9C88FF;
+  
+  /* Borders */
+  --border-subtle: rgba(158, 158, 158, 0.12);
+  --border-medium: rgba(158, 158, 158, 0.24);
+  --border-strong: rgba(158, 158, 158, 0.38);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.7);
+  
+  /* Overlays */
+  --overlay-light: rgba(18, 18, 18, 0.6);
+  --overlay-medium: rgba(18, 18, 18, 0.8);
+  --overlay-heavy: rgba(18, 18, 18, 0.95);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(30, 30, 30, 0.7);
+  --glass-border: rgba(158, 158, 158, 0.18);
+  
+  /* Theme Name */
+  --theme-name: "Charcoal Violet";
+}
+
+/* THEME 3: OLIVE GREEN & CREAM (EARTHY) */
+[data-theme="earthy"] {
+  /* Backgrounds */
+  --bg-primary: #2C3E2F;
+  --bg-secondary: #3A4F3D;
+  --bg-elevated: #475E4A;
+  --bg-hover: #546D57;
+  --bg-active: #617C64;
+  
+  /* Text Colors */
+  --text-primary: #FFF8DC;
+  --text-secondary: #C8D5B9;
+  --text-disabled: #8B9A7C;
+  --text-inverse: #2C3E2F;
+  
+  /* Accent Colors */
+  --accent-primary: #A8C99C;
+  --accent-primary-hover: #96BD88;
+  --accent-primary-active: #84B174;
+  --accent-secondary: #E07A5F;
+  --accent-secondary-hover: #D4674E;
+  
+  /* Semantic Colors */
+  --color-success: #A8C99C;
+  --color-success-hover: #96BD88;
+  --color-warning: #E9C46A;
+  --color-warning-hover: #E0B556;
+  --color-error: #E07A5F;
+  --color-error-hover: #D4674E;
+  --color-info: #A8C99C;
+  
+  /* Borders */
+  --border-subtle: rgba(200, 213, 185, 0.12);
+  --border-medium: rgba(200, 213, 185, 0.24);
+  --border-strong: rgba(200, 213, 185, 0.38);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.65);
+  
+  /* Overlays */
+  --overlay-light: rgba(44, 62, 47, 0.6);
+  --overlay-medium: rgba(44, 62, 47, 0.8);
+  --overlay-heavy: rgba(44, 62, 47, 0.95);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(58, 79, 61, 0.7);
+  --glass-border: rgba(200, 213, 185, 0.18);
+  
+  /* Theme Name */
+  --theme-name: "Earthy Olive";
+}
+
+/* BASE STYLES */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 9999px;
+  border: 2px solid var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-active);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-hover) var(--bg-secondary);
+}
+
+/* SELECTION STYLING */
+::selection {
+  background-color: var(--accent-primary);
+  color: var(--text-inverse);
+}
+
+::-moz-selection {
+  background-color: var(--accent-primary);
+  color: var(--text-inverse);
+}
