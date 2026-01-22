@@ -368,7 +368,7 @@ export default function NewEntryPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <button
               onClick={() => window.history.back()}
-              className="p-2 rounded-lg transition-all duration-200"
+              className="p-2 cursor-pointer rounded-lg transition-all duration-200"
               style={{
                 backgroundColor: 'var(--bg-elevated)',
                 color: 'var(--text-secondary)',
@@ -388,7 +388,7 @@ export default function NewEntryPage() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setFavorite(!favorite)}
-                className="p-2 rounded-lg transition-all duration-200"
+                className="p-2 cursor-pointer rounded-lg transition-all duration-200"
                 style={{
                   backgroundColor: favorite ? 'var(--accent-primary)' : 'var(--bg-elevated)',
                   color: favorite ? 'red' : 'var(--text-secondary)',
@@ -413,7 +413,7 @@ export default function NewEntryPage() {
               
               <button
                 onClick={handleSave}
-                className="flex items-center space-x-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md"
+                className="flex cursor-pointer items-center space-x-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md"
                 style={{
                   backgroundColor: 'var(--accent-primary)',
                   color: 'var(--text-inverse)',
@@ -481,7 +481,7 @@ export default function NewEntryPage() {
                 <button
                   key={m.value}
                   onClick={() => setMood(m.value)}
-                  className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
+                  className="px-4 cursor-pointer py-2 rounded-lg font-medium text-sm transition-all duration-200"
                   style={{
                     backgroundColor: mood === m.value ? 'var(--accent-primary)' : 'var(--bg-elevated)',
                     color: mood === m.value ? 'var(--text-inverse)' : 'var(--text-secondary)',
@@ -620,7 +620,7 @@ export default function NewEntryPage() {
               />
               <button
                 onClick={addTag}
-                className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
+                className="px-4 cursor-pointer py-2 rounded-lg font-medium text-sm transition-all duration-200"
                 style={{
                   backgroundColor: 'var(--bg-elevated)',
                   color: 'var(--text-secondary)',

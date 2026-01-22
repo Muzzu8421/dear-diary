@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HomePage() {
@@ -150,6 +151,7 @@ export default function HomePage() {
           </p>
 
           {/* New Entry Button */}
+          <Link href="/new-entry">
           <button
             className="group cursor-pointer inline-flex items-center space-x-2 sm:space-x-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl mt-6"
             style={{
@@ -169,6 +171,7 @@ export default function HomePage() {
             <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             <span>New Entry</span>
           </button>
+          </Link>
         </div>
 
         {/* Calendar Section */}

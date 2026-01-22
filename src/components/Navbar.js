@@ -57,7 +57,7 @@ export default function Navbar() {
             {/* Logo / Brand */}
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "var(--accent-primary)" }}
               >
                 <BookOpenText
@@ -74,7 +74,7 @@ export default function Navbar() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden cursor-pointer md:flex items-center space-x-1">
+            <div className="hidden md:flex items-center space-x-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = activeNav === link.id;
@@ -82,7 +82,7 @@ export default function Navbar() {
                   <Link key={link.id} href={link.url}>
                     <button
                       onClick={() => setActiveNav(link.id)}
-                      className="px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
+                      className="px-4 cursor-pointer py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
                       style={{
                         backgroundColor: isActive
                           ? "var(--bg-elevated)"
