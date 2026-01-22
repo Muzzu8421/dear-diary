@@ -230,7 +230,7 @@ export default function Navbar() {
                           : "var(--text-secondary)",
                       }}
                     >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <Icon className="w-5 h-5 shrink-0" />
                       <span className="font-medium text-sm sm:text-base">
                         {link.label}
                       </span>

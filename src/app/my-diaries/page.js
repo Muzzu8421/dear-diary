@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Calendar, Tag as TagIcon, ChevronDown, SortAsc, Edit3 } from "lucide-react";
+import { Heart, Calendar, Tag as TagIcon, ChevronDown, SortAsc, Eye } from "lucide-react";
 
 export default function MyDiariesPage() {
   const router = useRouter();
@@ -298,7 +298,7 @@ export default function MyDiariesPage() {
                               e.stopPropagation();
                               handleEntryClick(entry.id);
                             }}
-                            className="p-1.5 rounded-lg transition-all duration-200"
+                            className="p-1.5 cursor-pointer rounded-lg transition-all duration-200"
                             style={{
                               backgroundColor: 'var(--bg-hover)',
                               color: 'var(--text-secondary)',
@@ -313,7 +313,7 @@ export default function MyDiariesPage() {
                             }}
                             title="Edit entry"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Eye className="w-4 h-4" />
                           </button>
                         </div>
 
