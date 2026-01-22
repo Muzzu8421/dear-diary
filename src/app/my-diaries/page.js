@@ -298,7 +298,7 @@ export default function MyDiariesPage() {
                               e.stopPropagation();
                               handleEntryClick(entry.id);
                             }}
-                            className="p-1.5 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                            className="p-1.5 rounded-lg transition-all duration-200"
                             style={{
                               backgroundColor: 'var(--bg-hover)',
                               color: 'var(--text-secondary)',

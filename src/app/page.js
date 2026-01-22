@@ -1,11 +1,52 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 export default function HomePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Lazy initialization - reads from localStorage only once on mount
+  const [stats] = useState(() => {
+    const savedStats = localStorage.getItem('diary_stats');
+    if (savedStats) {
+      const parsedStats = JSON.parse(savedStats);
+      return {
+        totalEntries: parsedStats.totalEntries || 0,
+        entriesThisMonth: parsedStats.entriesThisMonth || 0,
+        currentStreak: parsedStats.currentStreak || 0,
+      };
+    }
+    return {
+      totalEntries: 0,
+      entriesThisMonth: 0,
+      currentStreak: 0,
+    };
+  });
+
+  // Lazy initialization for entry dates
+  const [entryDates] = useState(() => {
+    const savedEntries = localStorage.getItem('diary_entries');
+    if (savedEntries) {
+      const entries = JSON.parse(savedEntries);
+      const dates = new Set();
+      
+      // Handle both single entry object and array of entries
+      const entriesArray = Array.isArray(entries) ? entries : [entries];
+      
+      entriesArray.forEach(entry => {
+        if (entry.date) {
+          const entryDate = new Date(entry.date);
+          // Store date as YYYY-MM-DD for easy comparison
+          const dateKey = `${entryDate.getFullYear()}-${entryDate.getMonth()}-${entryDate.getDate()}`;
+          dates.add(dateKey);
+        }
+      });
+      
+      return dates;
+    }
+    return new Set();
+  });
 
   // Calendar logic
   const getDaysInMonth = (date) => {
@@ -48,6 +89,11 @@ export default function HomePage() {
       currentDate.getMonth() === selectedDate.getMonth() &&
       currentDate.getFullYear() === selectedDate.getFullYear()
     );
+  };
+
+  const hasEntry = (day) => {
+    const dateKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}-${day}`;
+    return entryDates.has(dateKey);
   };
 
   const handleDateClick = (day) => {
@@ -104,7 +150,6 @@ export default function HomePage() {
           </p>
 
           {/* New Entry Button */}
-          <Link href={"/new-entry"}>
           <button
             className="group cursor-pointer inline-flex items-center space-x-2 sm:space-x-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl mt-6"
             style={{
@@ -124,7 +169,6 @@ export default function HomePage() {
             <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             <span>New Entry</span>
           </button>
-          </Link>
         </div>
 
         {/* Calendar Section */}
@@ -205,6 +249,7 @@ export default function HomePage() {
 
               const today = isToday(day);
               const selected = isSelected(day);
+              const hasEntryOnDate = hasEntry(day);
 
               return (
                 <button
@@ -214,23 +259,27 @@ export default function HomePage() {
                   style={{
                     backgroundColor: selected
                       ? "var(--accent-primary)"
-                      : today
-                        ? "var(--bg-elevated)"
-                        : "transparent",
-                    color: selected
+                      : hasEntryOnDate
+                        ? "var(--color-success)"
+                        : today
+                          ? "var(--bg-elevated)"
+                          : "transparent",
+                    color: selected || hasEntryOnDate
                       ? "var(--text-inverse)"
                       : today
                         ? "var(--accent-primary)"
                         : "var(--text-primary)",
-                    border: today && !selected ? "2px solid var(--accent-primary)" : "2px solid transparent",
+                    border: today && !selected && !hasEntryOnDate 
+                      ? "2px solid var(--accent-primary)" 
+                      : "2px solid transparent",
                   }}
                   onMouseEnter={(e) => {
-                    if (!selected) {
+                    if (!selected && !hasEntryOnDate) {
                       e.currentTarget.style.backgroundColor = "var(--bg-hover)";
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!selected) {
+                    if (!selected && !hasEntryOnDate) {
                       e.currentTarget.style.backgroundColor = today
                         ? "var(--bg-elevated)"
                         : "transparent";
@@ -238,17 +287,6 @@ export default function HomePage() {
                   }}
                 >
                   {day}
-                  {/* Indicator dot for entries (placeholder) */}
-                  {day % 3 === 0 && (
-                    <div
-                      className="absolute bottom-1 w-1 h-1 rounded-full"
-                      style={{
-                        backgroundColor: selected
-                          ? "var(--text-inverse)"
-                          : "var(--accent-secondary)",
-                      }}
-                    />
-                  )}
                 </button>
               );
             })}
@@ -279,12 +317,12 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Quick Stats (Optional) */}
+        {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {[
-            { label: "Total Entries", value: "24" },
-            { label: "This Month", value: "8" },
-            { label: "Streak", value: "5 days" },
+            { label: "Total Entries", value: stats.totalEntries },
+            { label: "This Month", value: stats.entriesThisMonth },
+            { label: "Current Streak", value: `${stats.currentStreak} ${stats.currentStreak === 1 ? 'day' : 'days'}` },
           ].map((stat, index) => (
             <div
               key={index}

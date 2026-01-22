@@ -1,12 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Save, ArrowLeft, Smile, Tag, X, Check, Heart } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { v4 as uuid } from "uuid";
+import { Save, ArrowLeft, Smile, Tag, X, Check, Heart, ImagePlus, Trash2 } from "lucide-react";
 
 export default function NewEntryPage() {
-  const router = useRouter();
-  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('');
@@ -14,10 +10,117 @@ export default function NewEntryPage() {
   const [tagInput, setTagInput] = useState('');
   const [saved, setSaved] = useState(false);
   const [favorite, setFavorite] = useState(false);
-  const [entryId] = useState(`${uuid()}`);
+  const [images, setImages] = useState([]);
+  const [uploadError, setUploadError] = useState('');
+  const [entryId] = useState(() => `entry_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   
   const contentRef = useRef(null);
   const titleRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // ============ IMAGE FUNCTIONS ============
+
+  const resizeImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Calculate new dimensions while maintaining aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression
+          const base64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(base64);
+        };
+        
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    setUploadError('');
+    
+    // Limit to 5 images per entry
+    if (images.length + files.length > 5) {
+      setUploadError('Maximum 5 images allowed per entry');
+      return;
+    }
+    
+    for (const file of files) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        setUploadError('Please upload only image files');
+        continue;
+      }
+      
+      // Check file size (limit 5MB before compression)
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError('Image too large. Please upload images under 5MB');
+        continue;
+      }
+      
+      try {
+        // Resize and compress image
+        const compressedBase64 = await resizeImage(file);
+        
+        // Check if compressed image is still too large (> 500KB in base64)
+        if (compressedBase64.length > 500000) {
+          setUploadError('Image still too large after compression. Try a smaller image.');
+          continue;
+        }
+        
+        const imageObj = {
+          id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          name: file.name,
+          data: compressedBase64,
+          timestamp: Date.now(),
+        };
+        
+        setImages(prev => [...prev, imageObj]);
+      } catch (error) {
+        console.error('Error processing image:', error);
+        setUploadError('Error processing image. Please try again.');
+      }
+    }
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeImage = (imageId) => {
+    setImages(images.filter(img => img.id !== imageId));
+  };
 
   // ============ LOCALSTORAGE FUNCTIONS ============
 
@@ -39,7 +142,6 @@ export default function NewEntryPage() {
     
     const daysSinceLastEntry = Math.floor((today - mostRecentEntry) / (1000 * 60 * 60 * 24));
     
-    // Streak broken if missed more than 1 day
     if (daysSinceLastEntry > 1) return 0;
     
     let streak = 1;
@@ -74,7 +176,6 @@ export default function NewEntryPage() {
     const currentStreak = calculateStreak(entries);
     const existingStats = getStats();
     
-    // Calculate entries this month
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -96,43 +197,6 @@ export default function NewEntryPage() {
 
   // ============ SAVE HANDLERS ============
 
-  const handleAutoSave = useCallback(() => {
-    const saveEntryToStorage = (entry) => {
-      const entries = getEntries();
-      const existingIndex = entries.findIndex(e => e.id === entry.id);
-      
-      if (existingIndex !== -1) {
-        entries[existingIndex] = entry;
-      } else {
-        entries.push(entry);
-      }
-      
-      // Sort by date (newest first)
-      entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-      
-      localStorage.setItem('diary_entries', JSON.stringify(entries));
-      updateStats(entries);
-      return entry;
-    };
-
-    if (title || content) {
-      const entry = {
-        id: entryId,
-        date: new Date().toISOString(),
-        title: title || 'Untitled Entry',
-        content,
-        mood,
-        tags,
-        favorite,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      saveEntryToStorage(entry);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }
-  }, [title, content, mood, tags, favorite, entryId, updateStats]);
-
   const saveEntryToStorage = (entry) => {
     const entries = getEntries();
     const existingIndex = entries.findIndex(e => e.id === entry.id);
@@ -143,12 +207,19 @@ export default function NewEntryPage() {
       entries.push(entry);
     }
     
-    // Sort by date (newest first)
     entries.sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    localStorage.setItem('diary_entries', JSON.stringify(entries));
-    updateStats(entries);
-    return entry;
+    try {
+      localStorage.setItem('diary_entries', JSON.stringify(entries));
+      updateStats(entries);
+      return entry;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        alert('Storage quota exceeded! Try removing some images or older entries.');
+        return null;
+      }
+      throw e;
+    }
   };
 
   const handleSave = () => {
@@ -159,15 +230,19 @@ export default function NewEntryPage() {
       content,
       mood,
       tags,
+      images,
       favorite,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    saveEntryToStorage(entry);
-    setSaved(true);
-    setTimeout(() => {
-      router.push('/');
-    }, 1500);
+    
+    const saved = saveEntryToStorage(entry);
+    if (saved) {
+      setSaved(true);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
+    }
   };
 
   // Auto-resize textarea
@@ -177,17 +252,6 @@ export default function NewEntryPage() {
       contentRef.current.style.height = contentRef.current.scrollHeight + 'px';
     }
   }, [content]);
-
-  // Auto-save every 30 seconds
-  useEffect(() => {
-    if (title || content) {
-      const interval = setInterval(() => {
-        handleAutoSave();
-      }, 30000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [title, content, mood, tags, favorite, handleAutoSave]);
 
   // ============ TAG HANDLERS ============
 
@@ -226,7 +290,7 @@ export default function NewEntryPage() {
 
   return (
     <>
-      <style jsx global>{`
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
 
         .title-input {
@@ -254,36 +318,41 @@ export default function NewEntryPage() {
         }
 
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
-        .fade-in {
-          animation: fadeIn 0.6s ease-out;
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .fade-in-delay-1 { animation: fadeIn 0.6s ease-out 0.1s both; }
+        .fade-in-delay-2 { animation: fadeIn 0.6s ease-out 0.2s both; }
+        .fade-in-delay-3 { animation: fadeIn 0.6s ease-out 0.3s both; }
+
+        .image-preview {
+          position: relative;
+          overflow: hidden;
+          border-radius: 12px;
+          aspect-ratio: 1;
         }
 
-        .fade-in-delay-1 {
-          animation: fadeIn 0.6s ease-out 0.1s both;
+        .image-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
-        .fade-in-delay-2 {
-          animation: fadeIn 0.6s ease-out 0.2s both;
+        .image-preview .delete-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.2s;
         }
 
-        .fade-in-delay-3 {
-          animation: fadeIn 0.6s ease-out 0.3s both;
-        }
-
-        .word-count {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-          font-size: 0.875rem;
-          letter-spacing: 0.02em;
+        .image-preview:hover .delete-overlay {
+          opacity: 1;
         }
       `}</style>
 
@@ -298,7 +367,7 @@ export default function NewEntryPage() {
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <button
-              onClick={() => router.back()}
+              onClick={() => window.history.back()}
               className="p-2 rounded-lg transition-all duration-200"
               style={{
                 backgroundColor: 'var(--bg-elevated)',
@@ -317,25 +386,12 @@ export default function NewEntryPage() {
             </button>
 
             <div className="flex items-center space-x-3">
-              {/* Favorite Button */}
               <button
                 onClick={() => setFavorite(!favorite)}
                 className="p-2 rounded-lg transition-all duration-200"
                 style={{
                   backgroundColor: favorite ? 'var(--accent-primary)' : 'var(--bg-elevated)',
                   color: favorite ? 'red' : 'var(--text-secondary)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!favorite) {
-                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                    e.currentTarget.style.color = 'var(--text-primary)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!favorite) {
-                    e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
-                    e.currentTarget.style.color = 'var(--text-secondary)';
-                  }
                 }}
                 title={favorite ? "Remove from favorites" : "Add to favorites"}
               >
@@ -431,24 +487,75 @@ export default function NewEntryPage() {
                     color: mood === m.value ? 'var(--text-inverse)' : 'var(--text-secondary)',
                     border: mood === m.value ? 'none' : '1px solid var(--border-subtle)',
                   }}
-                  onMouseEnter={(e) => {
-                    if (mood !== m.value) {
-                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                      e.currentTarget.style.color = 'var(--text-primary)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (mood !== m.value) {
-                      e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
-                      e.currentTarget.style.color = 'var(--text-secondary)';
-                    }
-                  }}
                 >
                   <span className="mr-2">{m.emoji}</span>
                   {m.label}
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Image Upload Section */}
+          <div className="fade-in-delay-2 mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <ImagePlus className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+                <span 
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Add Photos ({images.length}/5)
+                </span>
+              </div>
+              
+              <label
+                className="px-4 py-2 rounded-lg font-medium text-sm cursor-pointer transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--bg-elevated)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  disabled={images.length >= 5}
+                />
+                Upload Image
+              </label>
+            </div>
+
+            {uploadError && (
+              <p className="text-sm mb-3" style={{ color: 'var(--color-error)' }}>
+                {uploadError}
+              </p>
+            )}
+
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {images.map((img) => (
+                  <div key={img.id} className="image-preview">
+                    <img src={img.data} alt={img.name} />
+                    <div className="delete-overlay">
+                      <button
+                        onClick={() => removeImage(img.id)}
+                        className="p-2 rounded-full transition-all"
+                        style={{
+                          backgroundColor: 'var(--color-error)',
+                          color: 'white',
+                        }}
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Content Textarea */}
@@ -458,8 +565,8 @@ export default function NewEntryPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start writing your thoughts..."
-              className="w-full bg-transparent border-0 outline-none content-textarea min-h-100"
-              style={{ color: 'var(--text-primary)' }}
+              className="w-full bg-transparent border-0 outline-none content-textarea"
+              style={{ color: 'var(--text-primary)', minHeight: '200px' }}
               rows={10}
             />
           </div>
@@ -519,14 +626,6 @@ export default function NewEntryPage() {
                   color: 'var(--text-secondary)',
                   border: '1px solid var(--border-subtle)',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                }}
               >
                 Add
               </button>
@@ -535,14 +634,14 @@ export default function NewEntryPage() {
 
           {/* Word Count Footer */}
           <div 
-            className="flex justify-between items-center pt-6 border-t word-count"
+            className="flex justify-between items-center pt-6 border-t text-sm"
             style={{ 
               borderColor: 'var(--border-subtle)',
               color: 'var(--text-secondary)'
             }}
           >
-            <span>{wordCount} words</span>
-            <span>{charCount} characters</span>
+            <span>{wordCount} words · {charCount} characters</span>
+            <span>{images.length} {images.length === 1 ? 'photo' : 'photos'}</span>
           </div>
         </main>
       </div>
